@@ -1,0 +1,35 @@
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "output/program.elf",
+            "name": "Debug Microcontroller openocd Windows",
+            "request": "launch",
+            "type": "cortex-debug",
+            "showDevDebugOutput": false,
+            "servertype": "openocd",
+            "configFiles": [
+                "C:/Program Files (x86)/openocd/scripts/interface/stlink-v2.cfg",
+                "C:/Program Files (x86)/openocd/scripts/target/stm32f1x.cfg",
+            ],
+            "runToMain": true,
+            "svdFile": "STM32F103.svd"
+        },
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "output/program.elf",
+            "name": "Debug Microcontroller openocd Linux",
+            "request": "launch",
+            "type": "cortex-debug",
+            "showDevDebugOutput": false,
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink-v2.cfg",
+                "target/stm32f1x.cfg",
+            ],
+            "runToMain": true
+        }
+    ]
+}
