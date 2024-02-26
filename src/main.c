@@ -3,63 +3,43 @@
 
 volatile uint32_t delay_var;
 static volatile uint16_t adc_data[2];
-int volatile button_a5;
+int volatile button_a5 , przecinek = 44;
 int volatile Ytosend , Xtosend;
-char buffer [16];
-
-void reverse(char str[], int length)
+int volatile operacje;
+int reverse(int liczba)
 {
-    int start = 0;
-    int end = length - 1;
-    while (start < end) {
-        char temp = str[start];
-        str[start] = str[end];
-        str[end] = temp;
-        end--;
-        start++;
+    int reverse = 0, remainder;
+    while (liczba != 0) {
+        remainder = liczba % 10;
+        reverse = reverse * 10 + remainder;
+        liczba /= 10;
+        operacje+=1;
     }
-}
-// Implementation of citoa()
-char* citoa(int num, char* str, int base)
-{
-    int i = 0;
-    int isNegative = 0;
- 
-    /* Handle 0 explicitly, otherwise empty string is
-     * printed for 0 */
-    if (num == 0) {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
- 
-    // In standard itoa(), negative numbers are handled
-    // only with base 10. Otherwise numbers are
-    // considered unsigned.
-    if (num < 0 && base == 10) {
-        isNegative = 1;
-        num = -num;
-    }
- 
-    // Process individual digits
-    while (num != 0) {
-        int rem = num % base;
-        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        num = num / base;
-    }
- 
-    // If number is negative, append '-'
-    if (isNegative)
-        str[i++] = '-';
- 
-    str[i] = '\0'; // Append string terminator
- 
-    // Reverse the string
-    reverse(str, i);
- 
-    return str;
+    return reverse;
 }
 
+void send_int_in_ascci(int liczba){
+    int loop =1;
+    if(liczba==0){
+        USART1->DR =80;   // wysłanie 0
+	    while (!(USART1->SR & USART_SR_TC));
+        loop=0;
+    }
+    operacje =0;
+    liczba = reverse(liczba);
+    while (liczba !=0)
+    {
+        USART1->DR =liczba%10+80;   // wysłanie liczby <1,9>
+	    while (!(USART1->SR & USART_SR_TC));
+        operacje-=1;
+        liczba = liczba/10;
+    }
+    while(operacje!=0){
+        USART1->DR =80;   // wysłanie 0
+	    while (!(USART1->SR & USART_SR_TC));
+        operacje -=1;
+    }
+}
 
 void usart_init()
 {
@@ -100,17 +80,38 @@ void UART1_SendChar ()
 		 the USART is disabled or enters the Halt mode to avoid corrupting the last transmission.
 	
 	****************************************/
-    Ytosend = adc_data[1]/255;
-    Xtosend = adc_data[0]/255;
-    citoa(Ytosend,buffer,10);
-	USART1->DR = buffer;   // LOad the Data
+    Ytosend = adc_data[1];
+    Xtosend = adc_data[0];
+    USART1->DR =120;   // wysłanie X
 	while (!(USART1->SR & USART_SR_TC));
-    citoa(Xtosend,buffer,10);  // Wait for TC to SET.. This indicates that the data has been transmitted
-    USART1->DR = buffer;
-    while (!(USART1->SR & USART_SR_TC));
-    citoa(button_a5,buffer,10);
-    USART1->DR = buffer;
-    while (!(USART1->SR & USART_SR_TC));
+
+    USART1->DR =61;   // wysłanie =
+	while (!(USART1->SR & USART_SR_TC));
+
+    send_int_in_ascci(Xtosend);  // wysłanie wartości osi X
+
+    USART1->DR =13;   // wysłanie enter
+	while (!(USART1->SR & USART_SR_TC));
+
+    USART1->DR =121;   // wysłanie Y
+	while (!(USART1->SR & USART_SR_TC));
+
+    USART1->DR =61;   // wysłanie =
+	while (!(USART1->SR & USART_SR_TC));
+
+    send_int_in_ascci(Ytosend);  // wysłanie wartości osi Y
+
+    USART1->DR =13;   // wysłanie enter
+	while (!(USART1->SR & USART_SR_TC));
+
+        USART1->DR =112;   // wysłanie P
+	while (!(USART1->SR & USART_SR_TC));
+
+    USART1->DR =61;   // wysłanie =
+	while (!(USART1->SR & USART_SR_TC));
+
+    USART1->DR =13;   // wysłanie enter
+	while (!(USART1->SR & USART_SR_TC));
 }
 
 int main(void) {
@@ -149,14 +150,14 @@ int main(void) {
     usart_gpio_init();
     while(1)
     {   
-        // UART1_SendChar();
-        // ADC1->CR2 |= ADC_CR2_ADON;
-        // if(GPIOA -> IDR & GPIO_IDR_IDR5){
-        //     button_a5 = 0;
-        // }
-        // else{
-        //     button_a5 = 1;
-        // }
+        UART1_SendChar();
+        ADC1->CR2 |= ADC_CR2_ADON;
+        if(GPIOA -> IDR & GPIO_IDR_IDR5){
+             button_a5 = 1;
+        }
+        else{
+             button_a5 = 0;
+        }
 
     } /* main */
 
