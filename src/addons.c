@@ -1,52 +1,44 @@
-void reverse(char str[], int length)
+#include "stm32f103xb.h"
+#include <stdlib.h>
+int volatile operacje;
+int reverse(int liczba)
 {
-    int start = 0;
-    int end = length - 1;
-    while (start < end) {
-        char temp = str[start];
-        str[start] = str[end];
-        str[end] = temp;
-        end--;
-        start++;
+    int reverse = 0, remainder;
+    while (liczba != 0)
+    {
+        remainder = liczba % 10;
+        reverse = reverse * 10 + remainder;
+        liczba /= 10;
+        operacje += 1;
     }
+    return reverse;
 }
-// Implementation of citoa()
-char* citoa(int num, char* str, int base)
+
+void send_int_in_ascci(int liczba)
 {
-    int i = 0;
-    int isNegative = 0;
- 
-    /* Handle 0 explicitly, otherwise empty string is
-     * printed for 0 */
-    if (num == 0) {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
+    int loop = 1;
+    if (liczba == 0)
+    {
+        USART1->DR = 48; // wysłanie 0
+        while (!(USART1->SR & USART_SR_TC))
+            ;
+        loop = 0;
     }
- 
-    // In standard itoa(), negative numbers are handled
-    // only with base 10. Otherwise numbers are
-    // considered unsigned.
-    if (num < 0 && base == 10) {
-        isNegative = 1;
-        num = -num;
+    operacje = 0;
+    liczba = reverse(liczba);
+    while (liczba != 0)
+    {
+        USART1->DR = liczba % 10 + 48; // wysłanie liczby <1,9>
+        while (!(USART1->SR & USART_SR_TC))
+            ;
+        operacje -= 1;
+        liczba = liczba / 10;
     }
- 
-    // Process individual digits
-    while (num != 0) {
-        int rem = num % base;
-        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-        num = num / base;
+    while (operacje != 0)
+    {
+        USART1->DR = 48; // wysłanie 0
+        while (!(USART1->SR & USART_SR_TC))
+            ;
+        operacje -= 1;
     }
- 
-    // If number is negative, append '-'
-    if (isNegative)
-        str[i++] = '-';
- 
-    str[i] = '\0'; // Append string terminator
- 
-    // Reverse the string
-    reverse(str, i);
- 
-    return str;
 }
