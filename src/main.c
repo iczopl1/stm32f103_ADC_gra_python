@@ -43,7 +43,8 @@ int main(void)
     {
         Ytosend = adc_data[1];
         Xtosend = adc_data[0];
-
+        //stary if który zmienia tylko jak jest wystarczająca zmiana
+        //if (button_a5 != zapisane_button_a5 || Xtosend - zapisane[1] > 400 || Xtosend - zapisane[1] < -400 || Ytosend - zapisane[0] > 400 || Ytosend - zapisane[0] < -400)
         if (button_a5 != zapisane_button_a5 || Xtosend > gurna_martfa_strefa_x || Xtosend < dolna_martfa_strefa_x || Ytosend > gurna_martfa_strefa_y || Ytosend < dolna_martfa_strefa_y)
         {
             zapisane_button_a5 = button_a5;
