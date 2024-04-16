@@ -24,11 +24,11 @@ void adcdma()
     DMA1_Channel1->CMAR = (uint32_t)adc_data;      // gdzie ma wrzucac dane
     DMA1_Channel1->CCR |= DMA_CCR_EN;              // wlacz DMA
 
-    // ustawienia adc
-    ADC1->CR2 |= ADC_CR2_ADON;
-    ADC1->SQR1 = ADC_SQR1_L_0;
-    ADC1->SQR3 |= 0 << ADC_SQR3_SQ1_Pos;
-    ADC1->SQR3 |= 1 << ADC_SQR3_SQ2_Pos;
-    ADC1->CR2 |= ADC_CR2_DMA;
-    ADC1->CR1 |= ADC_CR1_SCAN;
+   // ustawienia adc
+    ADC1->CR2 |= ADC_CR2_ADON; // włączenie przetwornika
+    ADC1->SQR1 = ADC_SQR1_L_0; //Ustawienie ilości konwersji w sekwencji regularnej. W tym przypadku ustawienie jednej konwersji 
+    ADC1->SQR3 |= 0 << ADC_SQR3_SQ1_Pos;//Konfiguracja pierwszego kanału w sekwencji konwersji. W tym przypadku kanał 0 (PA0).
+    ADC1->SQR3 |= 1 << ADC_SQR3_SQ2_Pos;//Konfiguracja drugiego kanału w sekwencji konwersji. W tym przypadku kanał 1 (PA1).
+    ADC1->CR2 |= ADC_CR2_DMA;//Włączenie trybu DMA dla ADC. Tryb DMA umożliwia bezpośredni transfer danych z ADC do pamięci
+    ADC1->CR1 |= ADC_CR1_SCAN;//Włączenie trybu skanowania (SCAN) dla ADC. W trybie skanowania, po zakończeniu konwersji na kanale, następuje automatyczne przejście do kolejnego kanału w sekwencji konwersji.
 }

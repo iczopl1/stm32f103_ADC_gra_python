@@ -18,7 +18,7 @@ void usart_gpio_init()
 													  // PA10 as input, floating point
 }
 
-void UART1_SendChar(int X, int Y, int PA5)
+void UART1_Send(int X, int Y, int PA5)
 {
 	/*********** STEPS FOLLOWED *************
 

@@ -48,9 +48,12 @@ int main(void)
         if (button_a5 != zapisane_button_a5 || Xtosend > gurna_martfa_strefa_x || Xtosend < dolna_martfa_strefa_x || Ytosend > gurna_martfa_strefa_y || Ytosend < dolna_martfa_strefa_y)
         {
             zapisane_button_a5 = button_a5;
-            UART1_SendChar(Xtosend, Ytosend, button_a5);
+            UART1_Send(Xtosend, Ytosend, button_a5);
         }
-        ADC1->CR2 |= ADC_CR2_ADON;
+        else{
+            zapisane_button_a5 = button_a5;
+            UART1_Send(0, 0, button_a5);
+        }
         if (GPIOA->IDR & GPIO_IDR_IDR5)
         {
             button_a5 = 1;
